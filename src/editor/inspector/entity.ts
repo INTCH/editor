@@ -288,7 +288,7 @@ class EntityInspector extends Container {
         // add component menu
         this._menuAddComponent = this._createAddComponentMenu();
 
-        // focus name input on F2
+        // focus    "-winput on F2
         editor.call('hotkey:register', 'entities:rename:f2', {
             key: 'F2',
             callback: this._onHotkeyF2.bind(this)

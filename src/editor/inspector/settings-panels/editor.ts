@@ -64,6 +64,21 @@ const ATTRIBUTES = [
         }
     },
     {
+        observer: 'userSettings',
+        label: 'Camera Fly Speed',
+        type: 'slider',
+        alias: 'flySpeed',
+        reference: 'settings:flySpeed',
+        path: 'editor.flySpeed',
+        args: {
+            value: 25,
+            min: 0,
+            sliderMin: 1,
+            sliderMax: 250,
+            step: 1
+        }
+    },
+    {
         alias: 'divider:0',
         type: 'divider'
     },

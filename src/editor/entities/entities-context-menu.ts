@@ -96,7 +96,6 @@ editor.once('load', () => {
             menuData.push({
                 text: 'Template',
                 icon: 'E411',
-                onIsEnabled: isOneSelected,
                 onIsVisible: hasWriteAccess,
                 items: editor.call('menu:entities:template')
             });
@@ -145,6 +144,63 @@ editor.once('load', () => {
             },
             onSelect: function () {
                 setField('enabled', false);
+            }
+        });
+
+        menuData.push({
+            text: 'Rename',
+            icon: 'E294',
+            onIsEnabled: () => {
+                return getSelection().length > 0;
+            },
+            onSelect: function () {
+                const searchPattern = prompt(
+                    "Search (regex or plain text, leave blank to change all):"
+                );
+                if (searchPattern === null) return;
+
+                let newName = prompt("Change (e.g. {name}{i+1}):");
+                if (newName === null) return;
+
+                const regex = searchPattern ? new RegExp(searchPattern, "g") : null;
+                let counter = 1;
+
+                function processMathExpression(expression, index) {
+                    try {
+                        return eval(expression.replace("i", index));
+                    } catch (e) {
+                        console.error("Error:", expression);
+                        return index;
+                    }
+                }
+
+                getSelection().forEach((v) => {
+                    let currentName = v.get("name");
+                    let modifiedName = currentName;
+
+                    if (regex) {
+                        modifiedName = modifiedName.replace(regex, (match) => {
+                            let newReplacement = newName;
+
+                            if (newReplacement.includes("{name}")) {
+                                newReplacement = newReplacement.replace(/{name}/g, currentName);
+                            }
+
+                            newReplacement = newReplacement.replace(/\{([^\}]+)\}/g, (_, expression) => {
+                                return processMathExpression(expression, counter);
+                            });
+
+                            return newReplacement;
+                        });
+                    } else {
+                        modifiedName = newName.replace(/{name}/g, currentName).replace(/\{([^\}]+)\}/g, (_, expression) => {
+                            return processMathExpression(expression, counter);
+                        });
+                    }
+
+                    counter++;
+                    v.set("name", modifiedName);
+                });
             }
         });
 
@@ -219,6 +275,31 @@ editor.once('load', () => {
             },
             onSelect: function () {
                 editor.call('vcgraph:utils', 'launchItemHist', 'entities', items[0].get('resource_id'));
+            }
+        });
+
+        function getParentNames(item) {
+            console.log(item);
+            const names = [];
+            names.push(item.entity.name);
+
+            function a(item) {
+                if (item.parent) {
+                    names.push(item.parent.name);
+                    a(item.parent);
+                }
+            }
+
+            a(item.entity);
+            return JSON.stringify(names.reverse());
+        }
+
+        menuData.push({
+            text: 'Copy Path',
+            icon: 'E144',
+            onIsVisible: isOneSelected,
+            onSelect: function () {
+                navigator.clipboard.writeText(getParentNames(getSelection()[0]));
             }
         });
 

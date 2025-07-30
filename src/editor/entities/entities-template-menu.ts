@@ -72,6 +72,22 @@ editor.once('load', () => {
     });
 
     templateItems.push({
+        text: '√√ Apply All Templates',
+        icon: '',
+        onIsEnabled: function () {
+            const selection = getSelection();
+            return selection.length > 1;
+        },
+        onSelect: function () {
+            getSelection().forEach((entity) => {
+                if (entity.get('template_id')) {
+                    editor.call('templates:apply', entity);
+                }
+            });
+        }
+    });
+
+    templateItems.push({
         text: 'Unlink From Template',
         icon: 'E358',
         onIsEnabled: function () {

@@ -97,10 +97,18 @@ const ATTRIBUTES = [{
         allowTextSelection: true
     }
 }, {
+    label: 'IDs',
+    path: 'ids',
+    type: 'label',
+    args: {
+        allowTextSelection: true
+    }
+}, {
     label: 'Assets',
     path: 'assets',
     type: 'label'
-}, {
+},
+{
     label: 'Name',
     path: 'name',
     reference: 'asset:name',
@@ -240,6 +248,9 @@ const HIDDEN_FIELDS = {
     'assets': [
         'single',
         'legacyScripts'
+    ],
+    'ids': [
+        'single'
     ],
     'id': [
         'multi',
@@ -531,7 +542,7 @@ class AssetInspector extends Container {
         if (!this._assets) return;
 
         this._attributesInspector.getField('createdAt').values = this._assets.map((asset) => {
-            return asset.get('createdAt') &&  convertDatetime(asset.get('createdAt'));
+            return asset.get('createdAt') && convertDatetime(asset.get('createdAt'));
         });
     }
 
@@ -556,7 +567,7 @@ class AssetInspector extends Container {
         }
 
         const licenses = this._assets.map((asset) => {
-            return asset.get('license') &&  this._buildLicenseHtml(asset.get('license.id'));
+            return asset.get('license') && this._buildLicenseHtml(asset.get('license.id'));
         });
 
         if (licenses.length > 0) {
@@ -572,7 +583,7 @@ class AssetInspector extends Container {
         }
 
         const authors = this._assets.map((asset) => {
-            return asset.get('license') &&  this._buildAuthorHtml(asset.get('license.author'), asset.get('license.authorUrl'));
+            return asset.get('license') && this._buildAuthorHtml(asset.get('license.author'), asset.get('license.authorUrl'));
         });
 
         if (authors.length > 0) {
@@ -584,7 +595,7 @@ class AssetInspector extends Container {
                 }
             }
 
-            this._attributesInspector.getField('author').dom.innerHTML  = authorHtml;
+            this._attributesInspector.getField('author').dom.innerHTML = authorHtml;
         }
     }
 
@@ -655,6 +666,11 @@ class AssetInspector extends Container {
         this._attributesInspector.getField('assets').values = assets.map((asset) => {
             return assets.length;
         });
+        const selectedAssetIds = assets
+            .map(v => v.get("id"))
+            .join(", ");
+
+        this._attributesInspector.getField('ids').value = selectedAssetIds;
         this._attributesInspector.getField('type').values = assets.map((asset) => {
             if (asset.get('type') === 'scene') {
                 return 'source scene';
@@ -783,7 +799,7 @@ class AssetInspector extends Container {
                 assetType += '.source';
             }
 
-            if ((attribute === 'license' || attribute === 'author')  && !asset.get('license')) {
+            if ((attribute === 'license' || attribute === 'author') && !asset.get('license')) {
                 hiddenForAnyAsset = true;
             }
 

@@ -1,9 +1,10 @@
 editor.once('viewport:load', (app) => {
+    const settings = editor.call('settings:user');
 
     // Variables
     let flying = false;
-    const flySpeed = 7;
-    const flySpeedFast = 25;
+    let flySpeed = 7;
+    let flySpeedFast = 25;
     const flyEasing = 0.5;
     const flyVec = new pc.Vec3();
     const direction = new pc.Vec3();
@@ -11,6 +12,11 @@ editor.once('viewport:load', (app) => {
     let firstUpdate = false;
     let shiftKey = false;
     const vecA = new pc.Vec3();
+
+    settings.on('editor.flySpeed:set', (speed) => {
+        flySpeedFast = speed;
+        flySpeed = speed * 0.28;
+    });
 
     const keys = {
         forward: false,

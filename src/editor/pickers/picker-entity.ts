@@ -45,9 +45,29 @@ editor.once('load', () => {
         overlay.hidden = true;
     });
 
+    let lastHoveredEntity = null;
+    editor.on("viewport:pick:hover", (hover) => {
+        if (hover && !overlay.hidden) {
+            lastHoveredEntity = {
+                ...hover,
+                get: (key) => {
+                    if (key === "resource_id") {
+                        return hover._guid;
+                    }
+                    console.warn(`Key "${key}" not supported.`);
+                    return null;
+                }
+            };
+
+        } else {
+            lastHoveredEntity = null;
+        }
+    });
+
 
     // on close entity picker
     overlay.on('hide', () => {
+        editor.emit('picker:entity', lastHoveredEntity);
         // fold back hierarchy panel if needed
         if (hierarchyCollapsed) {
             hierarchyPanel.collapsed = true;
@@ -77,6 +97,7 @@ editor.once('load', () => {
 
     // open entity picker
     editor.method('picker:entity', (resourceId, fn) => {
+        lastHoveredEntity = null;
         // disable selector
         editor.call('selector:enabled', false);
 
